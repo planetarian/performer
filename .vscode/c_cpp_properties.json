@@ -34,22 +34,22 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceRoot}",
+                "${workspaceRoot}/src",
                 "/usr/include",
                 "/usr/local/include"
             ],
             "defines": [],
-            "intelliSenseMode": "clang-x64",
+            "intelliSenseMode": "linux-gcc-arm",
             "browse": {
                 "path": [
                     "/usr/include",
                     "/usr/local/include",
-                    "${workspaceRoot}"
+                    "${workspaceRoot}/src"
                 ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
             },
-            "compilerPath": "/usr/bin/clang",
+            "compilerPath": "/usr/bin/gcc",
             "cStandard": "c11",
             "cppStandard": "c++11"
         },
