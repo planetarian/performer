@@ -49,8 +49,8 @@ void Ui::init() {
     });
 
     _engine.setUsbMidiConnectHandler([this] (uint16_t vendorId, uint16_t productId) {
-        _messageManager.showMessage("USB MIDI DEVICE CONNECTED");
         _controllerManager.connect(vendorId, productId);
+        _messageManager.showMessage((_controllerManager.getName() + std::string("USB DEVICE CONNECTED: ")).c_str());
     });
 
     _engine.setUsbMidiDisconnectHandler([this] () {

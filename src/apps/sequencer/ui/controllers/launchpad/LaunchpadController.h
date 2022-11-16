@@ -15,6 +15,10 @@ public:
     LaunchpadController(ControllerManager &manager, Model &model, Engine &engine, const ControllerInfo &info);
     virtual ~LaunchpadController();
 
+    const char * getName() override {
+        return _device->getName();
+    }
+
     virtual void update() override;
 
     virtual void recvMidi(uint8_t cable, const MidiMessage &message) override;

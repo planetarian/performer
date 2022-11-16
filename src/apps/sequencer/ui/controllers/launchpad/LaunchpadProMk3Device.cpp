@@ -1,35 +1,40 @@
 #include "LaunchpadProMk3Device.h"
 
+//  +---+  +---+---+---+---+---+---+---+---+  +---+
+//  | 90|  | 91| 92| 93| 94| 95| 96| 97| 98|  | 99| < CC
+//  +---+  +---+---+---+---+---+---+---+---+  +---+
+//   v CC                v Notes v            CC v
+//  +---+  +---+---+---+---+---+---+---+---+  +---+
+//  | 80|  | 81|...|   |   |   |   |   | 88|  | 89| row 7
+//  +---+  +---+---+---+---+---+---+---+---+  +---+
+//  | 70|  | 71|...|   |   |   |   |   | 78|  | 79| row 6
+//  +---+  +---+---+---+---+---+---+---+---+  +---+
+//  | 60|  | 61|...|   |   |   |   |   | 68|  | 69| row 5
+//  +---+  +---+---+---+---+---+---+---+---+  +---+
+//  | 50|  | 51|...|   |   |   |   |   | 58|  | 59| row 4
+//  +---+  +---+---+---+---+---+---+---+---+  +---+
+//  | 40|  | 41|...|   |   |   |   |   | 48|  | 49| row 3
+//  +---+  +---+---+---+---+---+---+---+---+  +---+
+//  | 30|  | 31|...|   |   |   |   |   | 38|  | 39| row 2
+//  +---+  +---+---+---+---+---+---+---+---+  +---+
+//  | 20|  | 21|...|   |   |   |   |   | 28|  | 29| row 1
+//  +---+  +---+---+---+---+---+---+---+---+  +---+
+//  | 10|  | 11|...|   |   |   |   |   | 18|  | 19| row 0
+//  +---+  +---+---+---+---+---+---+---+---+  +---+
+//         |101|102|103|104|105|106|107|108| < CC
 //         +---+---+---+---+---+---+---+---+
-//         | 91| 92| 93| 94| 95| 96| 97| 98| < CC messages
+//         |  1|  2|  3|  4|  5|  6|  7|  8| < CC
 //         +---+---+---+---+---+---+---+---+
-//    v CC messages                 CC messages v
-//  +---+  +---+---+---+---+---+---+---+---+  +---+
-//  | 80|  | 81|...|   |   |   |   |   | 88|  | 89|
-//  +---+  +---+---+---+---+---+---+---+---+  +---+
-//  | 70|  | 71|...|   |   |   |   |   | 78|  | 79|
-//  +---+  +---+---+---+---+---+---+---+---+  +---+
-//  | 60|  | 61|...|   |   |   |   |   | 68|  | 69|
-//  +---+  +---+---+---+---+---+---+---+---+  +---+
-//  | 50|  | 51|...|   |   |   |   |   | 58|  | 59|
-//  +---+  +---+---+---+---+---+---+---+---+  +---+
-//  | 40|  | 41|...|   |   |   |   |   | 48|  | 49|
-//  +---+  +---+---+---+---+---+---+---+---+  +---+
-//  | 30|  | 31|...|   |   |   |   |   | 38|  | 39|
-//  +---+  +---+---+---+---+---+---+---+---+  +---+
-//  | 20|  | 21|...|   |   |   |   |   | 28|  | 29|
-//  +---+  +---+---+---+---+---+---+---+---+  +---+
-//  | 10|  | 11|...|   |   |   |   |   | 18|  | 19|
-//  +---+  +---+---+---+---+---+---+---+---+  +---+
-//
-//         +---+---+---+---+---+---+---+---+
-//         |  1|  2|  3|  4|  5|  6|  7|  8| < CC messages
-//         +---+---+---+---+---+---+---+---+
+//          cl0 cl1 cl2 cl3 cl4 cl5 cl6 cl7
 
 
-LaunchpadProMk3Device::LaunchpadProMk3Device() :
-    LaunchpadDevice()
+LaunchpadProMk3Device::LaunchpadProMk3Device() : MidiDevice()
 {
+    std::fill(_ledUpdateArr.begin(), _ledUpdateArr.end(), 0);
+    uint8_t preamble[] = { 0x00, 0x20, 0x29, 0x02, 0x0e, 0x03 };
+    for (uint8_t i = 0; i < sizeof(preamble); i++) {
+        _ledUpdateArr[i] = preamble[i];
+    }
 }
 
 void LaunchpadProMk3Device::initialize() {
@@ -41,51 +46,68 @@ void LaunchpadProMk3Device::initialize() {
 void LaunchpadProMk3Device::recvMidi(uint8_t cable, const MidiMessage &message) {
     if (message.isNoteOn() || message.isNoteOff()) {
         int index = message.note();
-        int row = 7 - (index - 11) / 10;
-        int col = (index - 11) % 10;
-        if (row >= 0 && row < Rows && col >= 0 && col < Cols) {
-            setButtonState(row, col, message.velocity() != 0);
-        }
+        //int row = 7 - (index - 11) / 10;
+        //int col = (index - 11) % 10;
+        setButtonState(index, message.velocity(), false);
     } else if (message.isControlChange()) {
         int index = message.controlNumber();
-        if (index >= 91 && index <= 98) {
-            setButtonState(FunctionRow, index - 91, message.controlValue() != 0);
-        } else if (index >= 19 && index <= 89 && (index % 10) == 9) {
-            setButtonState(SceneRow, 7 - (index - 19) / 10, message.controlValue() != 0);
-        }
+        setButtonState(index, message.controlValue(), false);
+    } else if (message.isKeyPressure()) {
+        int index = message.note();
+        setButtonState(index, message.keyPressure(), true);
     }
 }
 
 void LaunchpadProMk3Device::syncLeds() {
-    // grid
-    for (int row = 0; row < Rows; ++row) {
-        for (int col = 0; col < Cols; ++col) {
-            int index = row * Cols + col;
-            if (_deviceLedState[index] != _ledState[index]) {
-                if (sendMidi(Cable, MidiMessage::makeNoteOn(0, 11 + 10 * (7 - row) + col, _ledState[index]))) {
-                    _deviceLedState[index] = _ledState[index];
+    int payloadLength = LedUpdatePreambleLength;
+    uint8_t updatedLeds[10];
+    int numUpdated = 0;
+    for (int b = 0; b < ButtonCount; b++) {
+        if (_ledState[b] != _deviceLedState[b]) {
+
+            // Static palette-based colors can use note messages
+            if (_ledState[b].type == ColorSpec::ColorType::Static) {
+                if (sendMidi(Cable, MidiMessage::makeNoteOn(0, b, _ledState[b].data[0]))) {
+                    _deviceLedState[b] = _ledState[b];
                 }
+                continue;
             }
-        }
-    }
 
-    // scene
-    for (int col = 0; col < Cols; ++col) {
-        int index = SceneRow * Cols + col;
-        if (_deviceLedState[index] != _ledState[index]) {
-            if (sendMidi(Cable, MidiMessage::makeControlChange(0, 11 + 10 * (7 - col) + 8, _ledState[index]))) {
-                _deviceLedState[index] = _ledState[index];
-            }
-        }
-    }
+            // Otherwise, use led control sysex
 
-    // function
-    for (int col = 0; col < Cols; ++col) {
-        int index = FunctionRow * Cols + col;
-        if (_deviceLedState[index] != _ledState[index]) {
-            if (sendMidi(Cable, MidiMessage::makeControlChange(0, 91 + col, _ledState[index]))) {
-                _deviceLedState[index] = _ledState[index];
+            _ledUpdateArr[payloadLength++] = _ledState[b].type;
+            _ledUpdateArr[payloadLength++] = b;
+
+            
+            int len = _ledState[b].dataLength();
+            std::copy_n(_ledState[b].data.begin(), len, _ledUpdateArr.begin() + payloadLength);
+            payloadLength += len;
+            updatedLeds[numUpdated++] = b;
+
+            if (numUpdated == 10 || payloadLength > 27) { // No more room left in the payload pool slot
+                checkSendLedUpdate(updatedLeds, numUpdated, payloadLength);
+                numUpdated = 0;
+                payloadLength = LedUpdatePreambleLength;
             }
+
+            //if (sendMidi(Cable, MidiMessage::makeSystemExclusive(_ledUpdateArr.data(), payloadLength)))
+            //if (sendMidi(Cable, MidiMessage::makeNoteOn(0, b, _ledState[b].data[0])))
+            //if (sendMidi(Cable, MidiMessage::makeSystemExclusive(payload.data(), 9)))
+            //_deviceLedState[b] = _ledState[b];
         }
     }
+    if (numUpdated > 0) {
+        checkSendLedUpdate(updatedLeds, numUpdated, payloadLength);
+    }
+}
+
+bool LaunchpadProMk3Device::checkSendLedUpdate(uint8_t *updatedLeds, int numUpdated, int payloadLength)
+{
+    if (sendMidi(Cable, MidiMessage::makeSystemExclusive(_ledUpdateArr.data(), payloadLength))) {
+        for (int i = 0; i < numUpdated; i++) {
+            _deviceLedState[updatedLeds[i]] = _ledState[updatedLeds[i]];
+        }
+        return true;
+    }
+    return false;
 }

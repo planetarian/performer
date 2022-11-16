@@ -8,6 +8,10 @@
 class LaunchpadMk3Device : public LaunchpadDevice {
 public:
     LaunchpadMk3Device();
+    
+    const char * getName() override {
+        return "Launchpad Mk3";
+    }
 
     void initialize() override;
 

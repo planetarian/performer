@@ -2,6 +2,7 @@
 
 #include "Controller.h"
 #include "controllers/launchpad/LaunchpadController.h"
+#include "controllers/launchpad/LaunchpadProMk3Controller.h"
 
 #include "model/Model.h"
 
@@ -14,6 +15,13 @@
 class ControllerManager {
 public:
     ControllerManager(Model &model, Engine &engine);
+
+    const char * getName() {
+        if (_controller == nullptr) {
+            return "Unknown device";
+        }
+        return _controller->getName();
+    }
 
     void connect(uint16_t vendorId, uint16_t productId);
     void disconnect();
@@ -32,7 +40,7 @@ private:
     Model &_model;
     Engine &_engine;
     MidiPort _port;
-    Container<LaunchpadController> _controllerContainer;
+    Container<LaunchpadController, LaunchpadProMk3Controller> _controllerContainer;
     Controller *_controller = nullptr;
 
     friend class Controller;

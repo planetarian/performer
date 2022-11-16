@@ -9,6 +9,10 @@ class LaunchpadMk2Device : public LaunchpadDevice {
 public:
     LaunchpadMk2Device();
 
+    const char * getName() override {
+        return "Launchpad Mk2";
+    }
+
     void recvMidi(uint8_t cable, const MidiMessage &message) override;
 
     void setLed(int row, int col, Color color) override {

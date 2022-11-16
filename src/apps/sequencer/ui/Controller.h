@@ -9,6 +9,7 @@
 struct ControllerInfo {
     enum class Type : uint8_t {
         Launchpad,
+        LaunchpadProMk3
     };
 
     uint16_t vendorId;
@@ -22,6 +23,10 @@ class Controller {
 public:
     Controller(ControllerManager &manager, Model &model, Engine &engine);
     virtual ~Controller();
+
+    virtual const char * getName() {
+        return "MIDI Controller";
+    }
 
     virtual void update() = 0;
 

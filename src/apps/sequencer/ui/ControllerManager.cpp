@@ -8,7 +8,7 @@ static const ControllerInfo controllerInfos[] = {
     { 0x1235, 0x0051, ControllerInfo::Type::Launchpad },    // Novation Launchpad Pro
     { 0x1235, 0x0113, ControllerInfo::Type::Launchpad },    // Novation Launchpad Mini Mk3
     { 0x1235, 0x0103, ControllerInfo::Type::Launchpad },    // Novation Launchpad X
-    { 0x1235, 0x0123, ControllerInfo::Type::Launchpad },    // Novation Launchpad Pro Mk3
+    { 0x1235, 0x0123, ControllerInfo::Type::LaunchpadProMk3 },    // Novation Launchpad Pro Mk3
 };
 
 static const ControllerInfo *findController(uint16_t vendorId, uint16_t productId) {
@@ -36,6 +36,9 @@ void ControllerManager::connect(uint16_t vendorId, uint16_t productId) {
         case ControllerInfo::Type::Launchpad:
             _controller = _controllerContainer.create<LaunchpadController>(*this, _model, _engine, *info);
             break;
+        case ControllerInfo::Type::LaunchpadProMk3:
+            _controller = _controllerContainer.create<LaunchpadProMk3Controller>(*this, _model, _engine, *info);
+            break;
         }
     }
 }
@@ -43,6 +46,7 @@ void ControllerManager::connect(uint16_t vendorId, uint16_t productId) {
 void ControllerManager::disconnect() {
     if (_controller) {
         _controllerContainer.destroy(_controller);
+
         _controller = nullptr;
     }
 }

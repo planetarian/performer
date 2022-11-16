@@ -56,6 +56,8 @@ set(sources
     ui/Page.cpp
     ui/PageManager.cpp
     ui/Ui.cpp
+    # ui/controllers
+    ui/controllers/MidiDevice.cpp
     # ui/controllers/launchpad
     ui/controllers/launchpad/LaunchpadController.cpp
     ui/controllers/launchpad/LaunchpadDevice.cpp
@@ -63,6 +65,7 @@ set(sources
     ui/controllers/launchpad/LaunchpadMk3Device.cpp
     ui/controllers/launchpad/LaunchpadProDevice.cpp
     ui/controllers/launchpad/LaunchpadProMk3Device.cpp
+    ui/controllers/launchpad/LaunchpadProMk3Controller.cpp
     # ui/pages
     ui/pages/AsteroidsPage.cpp
     ui/pages/BasePage.cpp

@@ -8,6 +8,10 @@
 class LaunchpadProDevice : public LaunchpadDevice {
 public:
     LaunchpadProDevice();
+    
+    const char * getName() override {
+        return "Launchpad Pro";
+    }
 
     void recvMidi(uint8_t cable, const MidiMessage &message) override;
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "apps/sequencer/ui/controllers/MidiDevice.h"
+
 #include "core/midi/MidiMessage.h"
 
 #include <array>
@@ -7,7 +9,7 @@
 #include <functional>
 
 // Compatible with: Launchpad S, Launchpad Mini Mk1 and Mk2
-class LaunchpadDevice {
+class LaunchpadDevice : public MidiDevice {
 public:
     static constexpr int Rows = 8;
     static constexpr int Cols = 8;
@@ -17,7 +19,10 @@ public:
     static constexpr int SceneRow = 8;
     static constexpr int FunctionRow = 9;
 
-    typedef std::function<bool(uint8_t cable, const MidiMessage &)> SendMidiHandler;
+    virtual const char * getName() override {
+        return "Launchpad";
+    }
+
     typedef std::function<void(int, int, bool)> ButtonHandler;
 
     struct Color {
@@ -36,16 +41,8 @@ public:
     virtual ~LaunchpadDevice();
 
     // midi handling
-
-    void setSendMidiHandler(SendMidiHandler sendMidiHandler) {
-        _sendMidiHandler = sendMidiHandler;
-    }
-
-    virtual void recvMidi(uint8_t cable, const MidiMessage &message);
-
-    // initialization
-
-    virtual void initialize() {}
+    
+    void recvMidi(uint8_t cable, const MidiMessage &message) override;
 
     // button handling
 
@@ -75,14 +72,6 @@ public:
     virtual void syncLeds();
 
 protected:
-    static constexpr uint8_t Cable = 0;
-
-    bool sendMidi(uint8_t cable, const MidiMessage &message) {
-        if (_sendMidiHandler) {
-            return _sendMidiHandler(cable, message);
-        }
-        return false;
-    }
 
     void setButtonState(int row, int col, bool state) {
         _buttonState[row * Cols + col] = state;
@@ -91,7 +80,6 @@ protected:
         }
     }
 
-    SendMidiHandler _sendMidiHandler;
     ButtonHandler _buttonHandler;
     std::bitset<ButtonCount> _buttonState;
     std::array<uint8_t, ButtonCount> _ledState;

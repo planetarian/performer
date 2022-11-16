@@ -3,6 +3,7 @@
 #include "core/Debug.h"
 #include "os/os.h"
 
+// Calls a function with a prefix based on the current device state/mode
 #define CALL_MODE_FUNCTION(_mode_, _function_, ...)                         \
     switch (_mode_) {                                                       \
     case Mode::Sequence:    sequence##_function_(__VA_ARGS__);      break;  \
@@ -43,6 +44,7 @@ struct LayerMapItem {
     uint8_t col;
 };
 
+// Sub-views for step mode
 static const LayerMapItem noteSequenceLayerMap[] = {
     [int(NoteSequence::Layer::Gate)]                        =  { 0, 0 },
     [int(NoteSequence::Layer::GateProbability)]             =  { 1, 0 },
@@ -58,9 +60,10 @@ static const LayerMapItem noteSequenceLayerMap[] = {
     [int(NoteSequence::Layer::NoteVariationProbability)]    =  { 2, 3 },
     [int(NoteSequence::Layer::Condition)]                   =  { 0, 4 },
 };
+static constexpr int noteSequenceLayerMapSize =
+    sizeof(noteSequenceLayerMap) / sizeof(noteSequenceLayerMap[0]);
 
-static constexpr int noteSequenceLayerMapSize = sizeof(noteSequenceLayerMap) / sizeof(noteSequenceLayerMap[0]);
-
+// Sub-views for shape mode
 static const LayerMapItem curveSequenceLayerMap[] = {
     [int(CurveSequence::Layer::Shape)]                      =  { 0, 0 },
     [int(CurveSequence::Layer::ShapeVariation)]             =  { 1, 0 },
@@ -70,9 +73,10 @@ static const LayerMapItem curveSequenceLayerMap[] = {
     [int(CurveSequence::Layer::Gate)]                       =  { 0, 3 },
     [int(CurveSequence::Layer::GateProbability)]            =  { 1, 3 },
 };
+static constexpr int curveSequenceLayerMapSize =
+    sizeof(curveSequenceLayerMap) / sizeof(curveSequenceLayerMap[0]);
 
-static constexpr int curveSequenceLayerMapSize = sizeof(curveSequenceLayerMap) / sizeof(curveSequenceLayerMap[0]);
-
+// Defines a range mapping in terms of the min/max values of the source and destination ranges.
 struct RangeMap {
     int16_t min[2];
     int16_t max[2];
@@ -109,10 +113,13 @@ LaunchpadController::LaunchpadController(ControllerManager &manager, Model &mode
     } else if (info.productId == 0x0113 || info.productId == 0x0103) {
         // Launchpad Mini Mk3 | Launchpad X
         _device = _deviceContainer.create<LaunchpadMk3Device>();
-    } else if (info.productId == 0x0123) {
+    }
+    /* Now handled separately via LaunchpadProMk3Controller
+    else if (info.productId == 0x0123) {
         // Launchpad Mk3 Pro
         _device = _deviceContainer.create<LaunchpadProMk3Device>();
-    } else {
+    }//*/
+    else {
         _device = _deviceContainer.create<LaunchpadDevice>();
     }
 
