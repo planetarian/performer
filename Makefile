@@ -105,7 +105,7 @@ $(OPENOCD_INSTALL_MARKER):
 	$(V1) ( \
 	  cd $(OPENOCD_BUILD_DIR) ; \
 	  ./bootstrap ; \
-	  ./configure  $(OPENOCD_OPTIONS) ; \
+	  ./configure --disable-werror $(OPENOCD_OPTIONS) ; \
 	  $(MAKE) -j ; \
 	  $(MAKE) install ; \
 	)
