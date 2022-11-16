@@ -58,8 +58,24 @@ void LaunchpadProMk3Controller::update() {
         if (bs != 0) {
             _device->setLed(i, ColorSpec(ColorSpec::ColorType::Static, bs));
         }
-        else {
+        else if (i % 10 == 0 || i % 10 == 9 || i / 10 == 0 || i / 10 >= 9) {
             _device->setLed(i, ColorSpec(ColorSpec::ColorType::Static, 1));
+        }
+    }
+
+    switch(_project.selectedTrack().trackMode()) {
+        case Track::TrackMode::Note: {
+            const auto &trackEngine = _engine.selectedTrackEngine().as<NoteTrackEngine>();
+            const auto &sequence = _project.selectedNoteSequence();
+            auto layer = _project.selectedNoteSequenceLayer();
+            int currentStep = trackEngine.isActiveSequence(sequence) ? trackEngine.currentStep() : -1;
+            for (uint8_t stepIndex = sequence.firstStep(); stepIndex <= sequence.lastStep(); stepIndex++) {
+                const auto &step = sequence.step(stepIndex);
+                _device->setLed(getStepPadIndex(stepIndex), stepIndex == currentStep
+                    ? ColorSpec(ColorSpec::ColorType::Pulse, 0x28)
+                    : ColorSpec(ColorSpec::ColorType::Static, step.layerValue(layer) != 0 ? 0x29 : 0x2b));
+            }
+            break;
         }
     }
 

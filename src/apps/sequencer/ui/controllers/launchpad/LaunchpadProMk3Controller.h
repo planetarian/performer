@@ -37,4 +37,7 @@ private:
     void buttonUp(uint8_t index);
     void buttonDown(uint8_t index, uint8_t velocity);
     void buttonPressure(uint8_t index, uint8_t velocity);
+    uint8_t getStepPadIndex(uint8_t stepNum) {
+        return (8-(stepNum / 8))*10 + (stepNum % 8) + 1;
+    }
 };
